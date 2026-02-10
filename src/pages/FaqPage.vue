@@ -18,19 +18,37 @@ const deletingId = ref<number | null>(null)
 const expandedId = ref<number | null>(null)
 
 const form = ref({
-  question: '',
-  answer: '',
+  questionRu: '',
+  answerRu: '',
+  questionUz: '',
+  answerUz: '',
+  questionEn: '',
+  answerEn: '',
 })
 
 function openCreateDialog() {
   editingId.value = null
-  form.value = { question: '', answer: '' }
+  form.value = {
+    questionRu: '',
+    answerRu: '',
+    questionUz: '',
+    answerUz: '',
+    questionEn: '',
+    answerEn: '',
+  }
   dialogOpen.value = true
 }
 
 function openEditDialog(item: FaqItem) {
   editingId.value = item.id
-  form.value = { question: item.question, answer: item.answer }
+  form.value = {
+    questionRu: item.questionRu ?? item.question ?? '',
+    answerRu: item.answerRu ?? item.answer ?? '',
+    questionUz: item.questionUz ?? '',
+    answerUz: item.answerUz ?? '',
+    questionEn: item.questionEn ?? '',
+    answerEn: item.answerEn ?? '',
+  }
   dialogOpen.value = true
 }
 
@@ -100,7 +118,7 @@ onMounted(async () => {
         >
           <GripVertical class="w-4 h-4 text-muted-foreground shrink-0" />
           <span class="text-xs text-muted-foreground font-mono w-6 shrink-0">{{ index + 1 }}</span>
-          <p class="text-sm font-medium flex-1">{{ item.question }}</p>
+          <p class="text-sm font-medium flex-1">{{ item.questionRu ?? item.question }}</p>
           <div class="flex items-center gap-1 shrink-0">
             <button
               class="p-1 rounded hover:bg-accent transition-colors cursor-pointer"
@@ -136,7 +154,7 @@ onMounted(async () => {
           v-if="expandedId === item.id"
           class="px-4 pb-4 pt-0 ml-[3.25rem]"
         >
-          <p class="text-sm text-muted-foreground leading-relaxed">{{ item.answer }}</p>
+          <p class="text-sm text-muted-foreground leading-relaxed">{{ item.answerRu ?? item.answer }}</p>
         </div>
       </UiCard>
     </div>
@@ -153,12 +171,28 @@ onMounted(async () => {
     >
       <div class="space-y-4">
         <div>
-          <label class="text-sm font-medium mb-1.5 block">Вопрос</label>
-          <UiInput v-model="form.question" placeholder="Введите вопрос" />
+          <label class="text-sm font-medium mb-1.5 block">Вопрос (RU)</label>
+          <UiInput v-model="form.questionRu" placeholder="Введите вопрос на русском" />
         </div>
         <div>
-          <label class="text-sm font-medium mb-1.5 block">Ответ</label>
-          <UiTextarea v-model="form.answer" placeholder="Введите ответ" :rows="5" />
+          <label class="text-sm font-medium mb-1.5 block">Ответ (RU)</label>
+          <UiTextarea v-model="form.answerRu" placeholder="Введите ответ на русском" :rows="5" />
+        </div>
+        <div>
+          <label class="text-sm font-medium mb-1.5 block">Вопрос (UZ)</label>
+          <UiInput v-model="form.questionUz" placeholder="Введите вопрос на узбекском" />
+        </div>
+        <div>
+          <label class="text-sm font-medium mb-1.5 block">Ответ (UZ)</label>
+          <UiTextarea v-model="form.answerUz" placeholder="Введите ответ на узбекском" :rows="5" />
+        </div>
+        <div>
+          <label class="text-sm font-medium mb-1.5 block">Вопрос (EN)</label>
+          <UiInput v-model="form.questionEn" placeholder="Введите вопрос на английском" />
+        </div>
+        <div>
+          <label class="text-sm font-medium mb-1.5 block">Ответ (EN)</label>
+          <UiTextarea v-model="form.answerEn" placeholder="Введите ответ на английском" :rows="5" />
         </div>
         <div class="flex justify-end gap-3 pt-2">
           <UiButton variant="outline" @click="dialogOpen = false">Отмена</UiButton>
