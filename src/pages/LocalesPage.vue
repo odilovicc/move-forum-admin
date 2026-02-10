@@ -20,7 +20,9 @@ const tabs = computed<LocaleCode[]>(() => {
   return fromApi.length > 0 ? fromApi : ['ru', 'uz', 'en']
 })
 
-const currentData = computed(() => store.locales[activeTab.value] as Record<string, unknown>)
+const currentData = computed(
+  () => (store.locales[activeTab.value] as Record<string, unknown> | undefined) ?? {}
+)
 
 const sections = computed(() => {
   const data = currentData.value

@@ -7,8 +7,9 @@ import UiInput from '@/components/ui/UiInput.vue'
 import UiTextarea from '@/components/ui/UiTextarea.vue'
 import UiDialog from '@/components/ui/UiDialog.vue'
 import UiBadge from '@/components/ui/UiBadge.vue'
+import UiFileUpload from '@/components/ui/UiFileUpload.vue'
 import { useSpeakersStore, type Speaker } from '@/stores/speakers'
-import { Plus, Pencil, Trash2, User } from 'lucide-vue-next'
+import { Plus, Pencil, Trash2, ChevronUp, ChevronDown } from 'lucide-vue-next'
 
 const store = useSpeakersStore()
 
@@ -16,6 +17,8 @@ const dialogOpen = ref(false)
 const deleteDialogOpen = ref(false)
 const editingId = ref<number | null>(null)
 const deletingId = ref<number | null>(null)
+const photoFile = ref<File | null>(null)
+const NO_PHOTO_PLACEHOLDER = 'https://placehold.co/600x400?text=No+Photo'
 
 const form = ref({
   name: '',
@@ -23,11 +26,20 @@ const form = ref({
   photo: '',
   position: '',
   bio: '',
+  order: '0',
 })
 
 function openCreateDialog() {
   editingId.value = null
-  form.value = { name: '', nameEn: '', photo: '', position: '', bio: '' }
+  form.value = {
+    name: '',
+    nameEn: '',
+    photo: '',
+    position: '',
+    bio: '',
+    order: String(store.speakers.length),
+  }
+  photoFile.value = null
   dialogOpen.value = true
 }
 
@@ -39,7 +51,9 @@ function openEditDialog(speaker: Speaker) {
     photo: speaker.photo,
     position: speaker.position,
     bio: speaker.bio,
+    order: String(speaker.order),
   }
+  photoFile.value = null
   dialogOpen.value = true
 }
 
@@ -49,12 +63,29 @@ function openDeleteDialog(id: number) {
 }
 
 async function handleSave() {
-  if (editingId.value) {
-    await store.updateSpeaker(editingId.value, form.value)
-  } else {
-    await store.addSpeaker(form.value)
+  const payload = {
+    name: form.value.name,
+    nameEn: form.value.nameEn,
+    photo: form.value.photo,
+    position: form.value.position,
+    bio: form.value.bio,
+    order: Number(form.value.order),
   }
+
+  if (editingId.value) {
+    const updated = await store.updateSpeaker(editingId.value, payload)
+    if (photoFile.value && updated) {
+      await store.uploadPhoto(editingId.value, photoFile.value)
+    }
+  } else {
+    const created = await store.addSpeaker(payload)
+    if (photoFile.value && created) {
+      await store.uploadPhoto(created.id, photoFile.value)
+    }
+  }
+
   dialogOpen.value = false
+  photoFile.value = null
 }
 
 async function handleDelete() {
@@ -68,6 +99,39 @@ async function handleDelete() {
 onMounted(async () => {
   await store.fetchSpeakers()
 })
+
+function imageUrl(path: string) {
+  if (!path) {
+    return NO_PHOTO_PLACEHOLDER
+  }
+
+  if (path.startsWith('http://') || path.startsWith('https://')) {
+    return path
+  }
+
+  return path
+}
+
+async function moveUp(index: number) {
+  if (index > 0) {
+    await store.reorder(index, index - 1)
+  }
+}
+
+async function moveDown(index: number) {
+  if (index < store.speakers.length - 1) {
+    await store.reorder(index, index + 1)
+  }
+}
+
+function onFileSelected(file: File | null) {
+  photoFile.value = file
+}
+
+function clearCurrentPhoto() {
+  form.value.photo = ''
+  photoFile.value = null
+}
 </script>
 
 <template>
@@ -82,19 +146,33 @@ onMounted(async () => {
     </PageHeader>
 
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mt-8">
-      <UiCard v-for="speaker in store.speakers" :key="speaker.id" class="overflow-hidden">
+      <UiCard v-for="(speaker, index) in store.speakers" :key="speaker.id" class="overflow-hidden">
         <div class="p-5">
           <div class="flex items-start gap-4">
-            <div
-              class="w-12 h-12 rounded-full bg-muted flex items-center justify-center shrink-0"
-            >
-              <User v-if="!speaker.photo" class="w-5 h-5 text-muted-foreground" />
-              <span v-else class="text-sm font-semibold">{{ speaker.name[0] }}</span>
-            </div>
+            <img
+              :src="imageUrl(speaker.photo)"
+              class="h-12 w-12 shrink-0 rounded-full object-cover"
+              alt="Speaker photo"
+            />
             <div class="min-w-0 flex-1">
               <h3 class="font-medium text-sm truncate">{{ speaker.name }}</h3>
               <p class="text-xs text-muted-foreground mt-0.5 truncate">{{ speaker.nameEn }}</p>
               <UiBadge variant="secondary" class="mt-2">{{ speaker.position }}</UiBadge>
+              <p class="mt-2 text-xs text-muted-foreground">Порядок: {{ speaker.order }}</p>
+            </div>
+            <div class="flex flex-col gap-1">
+              <button
+                class="rounded border border-border p-1 hover:bg-accent"
+                @click="moveUp(index)"
+              >
+                <ChevronUp class="h-3.5 w-3.5" />
+              </button>
+              <button
+                class="rounded border border-border p-1 hover:bg-accent"
+                @click="moveDown(index)"
+              >
+                <ChevronDown class="h-3.5 w-3.5" />
+              </button>
             </div>
           </div>
           <p class="text-xs text-muted-foreground mt-3 line-clamp-2">{{ speaker.bio }}</p>
@@ -141,8 +219,20 @@ onMounted(async () => {
           <UiInput v-model="form.position" placeholder="Должность или компания" />
         </div>
         <div>
-          <label class="text-sm font-medium mb-1.5 block">Фото (идентификатор)</label>
-          <UiInput v-model="form.photo" placeholder="Например: SailyaHamidova" />
+          <label class="text-sm font-medium mb-1.5 block">Фото спикера</label>
+          <UiFileUpload
+            :current-url="form.photo"
+            :placeholder-url="NO_PHOTO_PLACEHOLDER"
+            @file-selected="onFileSelected"
+            @clear-current="clearCurrentPhoto"
+          />
+          <p class="mt-2 text-xs text-muted-foreground">
+            Можно загрузить новый файл или оставить текущий путь: <code>{{ form.photo || 'нет фото' }}</code>
+          </p>
+        </div>
+        <div>
+          <label class="text-sm font-medium mb-1.5 block">Порядок</label>
+          <UiInput v-model="form.order" type="number" min="0" />
         </div>
         <div>
           <label class="text-sm font-medium mb-1.5 block">Биография</label>

@@ -1,12 +1,15 @@
-const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3000/api";
+const API_BASE = import.meta.env.VITE_API_URL ?? "/api";
 
 export async function api<T>(path: string, options?: RequestInit): Promise<T> {
+  const isFormData = options?.body instanceof FormData;
+  const headers = new Headers(options?.headers);
+  if (!isFormData && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
+
   const response = await fetch(`${API_BASE}${path}`, {
-    headers: {
-      "Content-Type": "application/json",
-      ...(options?.headers ?? {}),
-    },
     ...options,
+    headers,
   });
 
   if (!response.ok) {

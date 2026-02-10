@@ -41,6 +41,7 @@ export const useSpeakersStore = defineStore("speakers", () => {
     });
     speakers.value.push(created);
     speakers.value.sort((a, b) => a.order - b.order);
+    return created;
   }
 
   async function updateSpeaker(id: number, payload: Partial<SpeakerPayload>) {
@@ -54,11 +55,46 @@ export const useSpeakersStore = defineStore("speakers", () => {
       speakers.value[index] = updated;
       speakers.value.sort((a, b) => a.order - b.order);
     }
+
+    return updated;
   }
 
   async function deleteSpeaker(id: number) {
     await api<Speaker>(`/speakers/${id}`, { method: "DELETE" });
     speakers.value = speakers.value.filter((speaker) => speaker.id !== id);
+  }
+
+  async function reorder(fromIndex: number, toIndex: number) {
+    const next = [...speakers.value];
+    const moved = next.splice(fromIndex, 1)[0];
+    if (!moved) {
+      return;
+    }
+
+    next.splice(toIndex, 0, moved);
+    speakers.value = next;
+
+    const ids = speakers.value.map((speaker) => speaker.id);
+    speakers.value = await api<Speaker[]>("/speakers/reorder/batch", {
+      method: "PUT",
+      body: JSON.stringify({ ids }),
+    });
+  }
+
+  async function uploadPhoto(id: number, file: File) {
+    const formData = new FormData();
+    formData.append("file", file);
+    const updated = await api<Speaker>(`/speakers/${id}/photo`, {
+      method: "POST",
+      body: formData,
+    });
+
+    const index = speakers.value.findIndex((speaker) => speaker.id === id);
+    if (index !== -1) {
+      speakers.value[index] = updated;
+    }
+
+    return updated;
   }
 
   return {
@@ -68,5 +104,7 @@ export const useSpeakersStore = defineStore("speakers", () => {
     addSpeaker,
     updateSpeaker,
     deleteSpeaker,
+    reorder,
+    uploadPhoto,
   };
 });

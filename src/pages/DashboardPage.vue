@@ -115,7 +115,12 @@ onMounted(async () => {
               <span class="text-sm">{{ label }}</span>
             </div>
             <span class="text-xs text-muted-foreground">
-              {{ localesStore.flattenKeys(localesStore.locales[code] as Record<string, unknown>).length }} ключей
+              {{
+                localesStore.flattenKeys(
+                  (localesStore.locales[code] as Record<string, unknown> | undefined) ?? {}
+                ).length
+              }}
+              ключей
             </span>
           </div>
         </div>
