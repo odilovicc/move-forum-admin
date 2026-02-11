@@ -21,22 +21,32 @@ const photoFile = ref<File | null>(null)
 const NO_PHOTO_PLACEHOLDER = 'https://placehold.co/600x400?text=No+Photo'
 
 const form = ref({
-  name: '',
+  nameRu: '',
+  nameUz: '',
   nameEn: '',
   photo: '',
-  position: '',
-  bio: '',
+  positionRu: '',
+  positionUz: '',
+  positionEn: '',
+  bioRu: '',
+  bioUz: '',
+  bioEn: '',
   order: '0',
 })
 
 function openCreateDialog() {
   editingId.value = null
   form.value = {
-    name: '',
+    nameRu: '',
+    nameUz: '',
     nameEn: '',
     photo: '',
-    position: '',
-    bio: '',
+    positionRu: '',
+    positionUz: '',
+    positionEn: '',
+    bioRu: '',
+    bioUz: '',
+    bioEn: '',
     order: String(store.speakers.length),
   }
   photoFile.value = null
@@ -46,11 +56,16 @@ function openCreateDialog() {
 function openEditDialog(speaker: Speaker) {
   editingId.value = speaker.id
   form.value = {
-    name: speaker.name,
-    nameEn: speaker.nameEn,
+    nameRu: speaker.nameRu ?? speaker.name ?? '',
+    nameUz: speaker.nameUz ?? '',
+    nameEn: speaker.nameEn ?? '',
     photo: speaker.photo,
-    position: speaker.position,
-    bio: speaker.bio,
+    positionRu: speaker.positionRu ?? speaker.position ?? '',
+    positionUz: speaker.positionUz ?? '',
+    positionEn: speaker.positionEn ?? '',
+    bioRu: speaker.bioRu ?? speaker.bio ?? '',
+    bioUz: speaker.bioUz ?? '',
+    bioEn: speaker.bioEn ?? '',
     order: String(speaker.order),
   }
   photoFile.value = null
@@ -64,11 +79,16 @@ function openDeleteDialog(id: number) {
 
 async function handleSave() {
   const payload = {
-    name: form.value.name,
+    nameRu: form.value.nameRu,
+    nameUz: form.value.nameUz,
     nameEn: form.value.nameEn,
     photo: form.value.photo,
-    position: form.value.position,
-    bio: form.value.bio,
+    positionRu: form.value.positionRu,
+    positionUz: form.value.positionUz,
+    positionEn: form.value.positionEn,
+    bioRu: form.value.bioRu,
+    bioUz: form.value.bioUz,
+    bioEn: form.value.bioEn,
     order: Number(form.value.order),
   }
 
@@ -155,9 +175,9 @@ function clearCurrentPhoto() {
               alt="Speaker photo"
             />
             <div class="min-w-0 flex-1">
-              <h3 class="font-medium text-sm truncate">{{ speaker.name }}</h3>
+              <h3 class="font-medium text-sm truncate">{{ speaker.nameRu ?? speaker.name }}</h3>
               <p class="text-xs text-muted-foreground mt-0.5 truncate">{{ speaker.nameEn }}</p>
-              <UiBadge variant="secondary" class="mt-2">{{ speaker.position }}</UiBadge>
+              <UiBadge variant="secondary" class="mt-2">{{ speaker.positionRu ?? speaker.position }}</UiBadge>
               <p class="mt-2 text-xs text-muted-foreground">Порядок: {{ speaker.order }}</p>
             </div>
             <div class="flex flex-col gap-1">
@@ -204,10 +224,14 @@ function clearCurrentPhoto() {
       @close="dialogOpen = false"
     >
       <div class="space-y-4">
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-3 gap-4">
           <div>
             <label class="text-sm font-medium mb-1.5 block">Имя (RU)</label>
-            <UiInput v-model="form.name" placeholder="Имя на русском" />
+            <UiInput v-model="form.nameRu" placeholder="Имя на русском" />
+          </div>
+          <div>
+            <label class="text-sm font-medium mb-1.5 block">Имя (UZ)</label>
+            <UiInput v-model="form.nameUz" placeholder="Ism o‘zbekcha" />
           </div>
           <div>
             <label class="text-sm font-medium mb-1.5 block">Имя (EN)</label>
@@ -215,8 +239,18 @@ function clearCurrentPhoto() {
           </div>
         </div>
         <div>
-          <label class="text-sm font-medium mb-1.5 block">Должность</label>
-          <UiInput v-model="form.position" placeholder="Должность или компания" />
+          <label class="text-sm font-medium mb-1.5 block">Должность (RU)</label>
+          <UiInput v-model="form.positionRu" placeholder="Должность или компания" />
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="text-sm font-medium mb-1.5 block">Должность (UZ)</label>
+            <UiInput v-model="form.positionUz" placeholder="Lavozim yoki kompaniya" />
+          </div>
+          <div>
+            <label class="text-sm font-medium mb-1.5 block">Должность (EN)</label>
+            <UiInput v-model="form.positionEn" placeholder="Position or company" />
+          </div>
         </div>
         <div>
           <label class="text-sm font-medium mb-1.5 block">Фото спикера</label>
@@ -236,7 +270,17 @@ function clearCurrentPhoto() {
         </div>
         <div>
           <label class="text-sm font-medium mb-1.5 block">Биография</label>
-          <UiTextarea v-model="form.bio" placeholder="Краткая биография спикера" :rows="4" />
+          <UiTextarea v-model="form.bioRu" placeholder="Биография на русском" :rows="4" />
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="text-sm font-medium mb-1.5 block">Биография (UZ)</label>
+            <UiTextarea v-model="form.bioUz" placeholder="Spiker haqida qisqa ma'lumot" :rows="4" />
+          </div>
+          <div>
+            <label class="text-sm font-medium mb-1.5 block">Биография (EN)</label>
+            <UiTextarea v-model="form.bioEn" placeholder="Short speaker bio" :rows="4" />
+          </div>
         </div>
         <div class="flex justify-end gap-3 pt-2">
           <UiButton variant="outline" @click="dialogOpen = false">Отмена</UiButton>

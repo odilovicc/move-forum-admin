@@ -5,19 +5,35 @@ import { api } from "@/api/client";
 export interface Speaker {
   id: number;
   name: string;
+  nameRu?: string;
+  nameUz?: string;
   nameEn: string;
   photo: string;
   position: string;
+  positionRu?: string;
+  positionUz?: string;
+  positionEn?: string;
   bio: string;
+  bioRu?: string;
+  bioUz?: string;
+  bioEn?: string;
   order: number;
 }
 
 export interface SpeakerPayload {
-  name: string;
+  name?: string;
+  nameRu: string;
+  nameUz?: string;
   nameEn: string;
   photo?: string;
-  position: string;
-  bio: string;
+  position?: string;
+  positionRu: string;
+  positionUz?: string;
+  positionEn?: string;
+  bio?: string;
+  bioRu: string;
+  bioUz?: string;
+  bioEn?: string;
   order?: number;
 }
 

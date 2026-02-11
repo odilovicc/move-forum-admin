@@ -27,6 +27,11 @@ const router = createRouter({
       name: 'locales',
       component: () => import('@/pages/LocalesPage.vue'),
     },
+    {
+      path: '/branding',
+      name: 'branding',
+      component: () => import('@/pages/BrandingPage.vue'),
+    },
   ],
 })
 

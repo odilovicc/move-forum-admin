@@ -79,6 +79,21 @@ export const useLocalesStore = defineStore("locales", () => {
     }
   }
 
+  async function uploadBrandingLogo(locale: string, file: File) {
+    const formData = new FormData();
+    formData.append("file", file);
+    const result = await api<{ locale: string; key: string; value: string }>(
+      `/locales/branding/logo/${locale}`,
+      {
+        method: "POST",
+        body: formData,
+      },
+    );
+
+    await updateValue(result.locale, result.key, result.value);
+    return result.value;
+  }
+
   function getNestedValue(obj: Record<string, unknown>, path: string): string {
     const keys = path.split(".");
     let current: unknown = obj;
@@ -120,6 +135,7 @@ export const useLocalesStore = defineStore("locales", () => {
     fetchAvailableLocales,
     setActiveLocale,
     updateValue,
+    uploadBrandingLogo,
     getNestedValue,
     flattenKeys,
   };
