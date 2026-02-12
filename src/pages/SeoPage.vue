@@ -192,7 +192,7 @@ watch(activeTab, (value) => {
           </div>
           <div>
             <label class="text-xs font-medium mb-1.5 block">Description</label>
-            <UiTextarea v-model="localizedForm.description" rows="3" placeholder="SEO description" />
+            <UiTextarea v-model="localizedForm.description" :rows="3" placeholder="SEO description" />
           </div>
           <div>
             <label class="text-xs font-medium mb-1.5 block">Keywords</label>
@@ -204,7 +204,7 @@ watch(activeTab, (value) => {
           </div>
           <div>
             <label class="text-xs font-medium mb-1.5 block">Event Description</label>
-            <UiTextarea v-model="localizedForm.eventDescription" rows="3" placeholder="Event description" />
+            <UiTextarea v-model="localizedForm.eventDescription" :rows="3" placeholder="Event description" />
           </div>
         </div>
       </UiCard>
