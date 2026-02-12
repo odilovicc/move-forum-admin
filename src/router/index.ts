@@ -32,6 +32,11 @@ const router = createRouter({
       name: 'branding',
       component: () => import('@/pages/BrandingPage.vue'),
     },
+    {
+      path: '/seo',
+      name: 'seo',
+      component: () => import('@/pages/SeoPage.vue'),
+    },
   ],
 })
 

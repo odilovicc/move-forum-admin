@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue'
 import PageHeader from '@/components/PageHeader.vue'
 import UiCard from '@/components/ui/UiCard.vue'
 import UiFileUpload from '@/components/ui/UiFileUpload.vue'
+import UiInput from '@/components/ui/UiInput.vue'
 import UiButton from '@/components/ui/UiButton.vue'
 import { useLocalesStore } from '@/stores/locales'
 
@@ -16,6 +17,9 @@ const form = ref({
   ru: '',
   uz: '',
   en: '',
+  ruTicketUrl: '',
+  uzTicketUrl: '',
+  enTicketUrl: '',
 })
 
 const files = ref({
@@ -31,6 +35,9 @@ function hydrate() {
     ru: store.getNestedValue(store.locales.ru ?? {}, 'branding.logo'),
     uz: store.getNestedValue(store.locales.uz ?? {}, 'branding.logo'),
     en: store.getNestedValue(store.locales.en ?? {}, 'branding.logo'),
+    ruTicketUrl: store.getNestedValue(store.locales.ru ?? {}, 'branding.buy_ticket_url'),
+    uzTicketUrl: store.getNestedValue(store.locales.uz ?? {}, 'branding.buy_ticket_url'),
+    enTicketUrl: store.getNestedValue(store.locales.en ?? {}, 'branding.buy_ticket_url'),
   }
 }
 
@@ -64,6 +71,10 @@ async function handleSave() {
     } else {
       tasks.push(store.updateValue('en', 'branding.logo', form.value.en))
     }
+
+    tasks.push(store.updateValue('ru', 'branding.buy_ticket_url', form.value.ruTicketUrl))
+    tasks.push(store.updateValue('uz', 'branding.buy_ticket_url', form.value.uzTicketUrl))
+    tasks.push(store.updateValue('en', 'branding.buy_ticket_url', form.value.enTicketUrl))
 
     await Promise.all(tasks)
     files.value = { ru: null, uz: null, en: null }
@@ -128,6 +139,21 @@ onMounted(async () => {
           @file-selected="setFile('en', $event)"
           @clear-current="clearLogo('en')"
         />
+      </UiCard>
+
+      <UiCard class="p-4">
+        <label class="text-sm font-medium mb-1.5 block">Ссылка "Купить билет онлайн" (RU)</label>
+        <UiInput v-model="form.ruTicketUrl" placeholder="https://example.com" />
+      </UiCard>
+
+      <UiCard class="p-4">
+        <label class="text-sm font-medium mb-1.5 block">Ссылка "Купить билет онлайн" (UZ)</label>
+        <UiInput v-model="form.uzTicketUrl" placeholder="https://example.com" />
+      </UiCard>
+
+      <UiCard class="p-4">
+        <label class="text-sm font-medium mb-1.5 block">Ссылка "Купить билет онлайн" (EN)</label>
+        <UiInput v-model="form.enTicketUrl" placeholder="https://example.com" />
       </UiCard>
 
       <p class="text-xs text-muted-foreground">Выберите файл и нажмите «Сохранить».</p>

@@ -7,6 +7,7 @@ import {
   HelpCircle,
   Languages,
   Settings,
+  Search,
 } from 'lucide-vue-next'
 
 const route = useRoute()
@@ -14,6 +15,7 @@ const route = useRoute()
 const navItems = [
   { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/branding', label: 'Брендинг', icon: Settings },
+  { path: '/seo', label: 'SEO', icon: Search },
   { path: '/locales', label: 'Переводы', icon: Languages },
   { path: '/speakers', label: 'Спикеры', icon: Users },
   { path: '/faq', label: 'FAQ', icon: HelpCircle },
