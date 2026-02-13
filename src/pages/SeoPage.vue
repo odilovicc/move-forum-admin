@@ -36,6 +36,11 @@ const globalForm = ref({
   eventEnd: '',
   eventLocationName: '',
   eventLocationAddress: '',
+  socialTelegram: '',
+  socialFacebook: '',
+  socialWebsite: '',
+  socialInstagram: '',
+  socialYoutube: '',
 })
 
 function hydrateLocale(locale: LocaleCode) {
@@ -61,6 +66,11 @@ function hydrateGlobal() {
     eventEnd: store.getNestedValue(data, 'seo.event_end_date'),
     eventLocationName: store.getNestedValue(data, 'seo.event_location_name'),
     eventLocationAddress: store.getNestedValue(data, 'seo.event_location_address'),
+    socialTelegram: store.getNestedValue(data, 'social.telegram'),
+    socialFacebook: store.getNestedValue(data, 'social.facebook'),
+    socialWebsite: store.getNestedValue(data, 'social.website'),
+    socialInstagram: store.getNestedValue(data, 'social.instagram'),
+    socialYoutube: store.getNestedValue(data, 'social.youtube'),
   }
 }
 
@@ -87,6 +97,11 @@ async function handleSave() {
       tasks.push(store.updateValue(code, 'seo.event_end_date', globalForm.value.eventEnd))
       tasks.push(store.updateValue(code, 'seo.event_location_name', globalForm.value.eventLocationName))
       tasks.push(store.updateValue(code, 'seo.event_location_address', globalForm.value.eventLocationAddress))
+      tasks.push(store.updateValue(code, 'social.telegram', globalForm.value.socialTelegram))
+      tasks.push(store.updateValue(code, 'social.facebook', globalForm.value.socialFacebook))
+      tasks.push(store.updateValue(code, 'social.website', globalForm.value.socialWebsite))
+      tasks.push(store.updateValue(code, 'social.instagram', globalForm.value.socialInstagram))
+      tasks.push(store.updateValue(code, 'social.youtube', globalForm.value.socialYoutube))
     }
 
     await Promise.all(tasks)
@@ -161,6 +176,32 @@ watch(activeTab, (value) => {
           <div>
             <label class="text-xs font-medium mb-1.5 block">Event Location Address</label>
             <UiInput v-model="globalForm.eventLocationAddress" placeholder="Tashkent, Uzbekistan" />
+          </div>
+        </div>
+      </UiCard>
+
+      <UiCard class="p-4 space-y-4">
+        <h3 class="text-sm font-semibold">Социальные сети</h3>
+        <div class="grid gap-3 md:grid-cols-2">
+          <div>
+            <label class="text-xs font-medium mb-1.5 block">Telegram</label>
+            <UiInput v-model="globalForm.socialTelegram" placeholder="https://t.me/..." />
+          </div>
+          <div>
+            <label class="text-xs font-medium mb-1.5 block">Facebook</label>
+            <UiInput v-model="globalForm.socialFacebook" placeholder="https://facebook.com/..." />
+          </div>
+          <div>
+            <label class="text-xs font-medium mb-1.5 block">Website</label>
+            <UiInput v-model="globalForm.socialWebsite" placeholder="https://example.com" />
+          </div>
+          <div>
+            <label class="text-xs font-medium mb-1.5 block">Instagram</label>
+            <UiInput v-model="globalForm.socialInstagram" placeholder="https://instagram.com/..." />
+          </div>
+          <div>
+            <label class="text-xs font-medium mb-1.5 block">YouTube</label>
+            <UiInput v-model="globalForm.socialYoutube" placeholder="https://youtube.com/..." />
           </div>
         </div>
       </UiCard>
