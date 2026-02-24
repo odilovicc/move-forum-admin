@@ -4,8 +4,10 @@ import { useEditor, EditorContent } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
 import Link from '@tiptap/extension-link'
 import HardBreak from '@tiptap/extension-hard-break'
+import TextAlign from '@tiptap/extension-text-align'
 import {
-  Bold, Italic, List, ListOrdered, Link2, Unlink, CornerDownLeft
+  Bold, Italic, List, ListOrdered, Link2, Unlink, CornerDownLeft,
+  AlignLeft, AlignCenter, AlignRight
 } from 'lucide-vue-next'
 
 const model = defineModel<string>()
@@ -26,6 +28,7 @@ const editor = useEditor({
       },
     }),
     Link.configure({ openOnClick: false }),
+    TextAlign.configure({ types: ['paragraph', 'heading'] }),
   ],
   content: model.value ?? '',
   editable: true,
@@ -101,6 +104,31 @@ function setLink() {
       <div class="w-px bg-border mx-0.5 self-stretch" />
       <button
         type="button"
+        :class="['p-1 rounded hover:bg-accent transition-colors', editor.isActive({ textAlign: 'left' }) ? 'bg-accent text-accent-foreground' : 'text-muted-foreground']"
+        @click="editor.chain().focus().setTextAlign('left').run()"
+        title="По левому краю"
+      >
+        <AlignLeft class="w-3.5 h-3.5" />
+      </button>
+      <button
+        type="button"
+        :class="['p-1 rounded hover:bg-accent transition-colors', editor.isActive({ textAlign: 'center' }) ? 'bg-accent text-accent-foreground' : 'text-muted-foreground']"
+        @click="editor.chain().focus().setTextAlign('center').run()"
+        title="По центру"
+      >
+        <AlignCenter class="w-3.5 h-3.5" />
+      </button>
+      <button
+        type="button"
+        :class="['p-1 rounded hover:bg-accent transition-colors', editor.isActive({ textAlign: 'right' }) ? 'bg-accent text-accent-foreground' : 'text-muted-foreground']"
+        @click="editor.chain().focus().setTextAlign('right').run()"
+        title="По правому краю"
+      >
+        <AlignRight class="w-3.5 h-3.5" />
+      </button>
+      <div class="w-px bg-border mx-0.5 self-stretch" />
+      <button
+        type="button"
         :class="['p-1 rounded hover:bg-accent transition-colors', editor.isActive('link') ? 'bg-accent text-accent-foreground' : 'text-muted-foreground']"
         @click="setLink"
         title="Добавить ссылку"
@@ -148,5 +176,14 @@ function setLink() {
 :deep(.tiptap a) {
   color: var(--color-primary);
   text-decoration: underline;
+}
+:deep(.tiptap [style*="text-align: center"]) {
+  text-align: center;
+}
+:deep(.tiptap [style*="text-align: right"]) {
+  text-align: right;
+}
+:deep(.tiptap [style*="text-align: left"]) {
+  text-align: left;
 }
 </style>
