@@ -4,7 +4,7 @@ import PageHeader from '@/components/PageHeader.vue'
 import UiCard from '@/components/ui/UiCard.vue'
 import UiButton from '@/components/ui/UiButton.vue'
 import UiInput from '@/components/ui/UiInput.vue'
-import UiTextarea from '@/components/ui/UiTextarea.vue'
+import UiRichEditor from '@/components/ui/UiRichEditor.vue'
 import UiDialog from '@/components/ui/UiDialog.vue'
 import UiBadge from '@/components/ui/UiBadge.vue'
 import UiFileUpload from '@/components/ui/UiFileUpload.vue'
@@ -269,17 +269,17 @@ function clearCurrentPhoto() {
           <UiInput v-model="form.order" type="number" min="0" />
         </div>
         <div>
-          <label class="text-sm font-medium mb-1.5 block">Биография</label>
-          <UiTextarea v-model="form.bioRu" placeholder="Биография на русском" :rows="4" />
+          <label class="text-sm font-medium mb-1.5 block">Биография (RU)</label>
+          <UiRichEditor v-model="form.bioRu" />
         </div>
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="text-sm font-medium mb-1.5 block">Биография (UZ)</label>
-            <UiTextarea v-model="form.bioUz" placeholder="Spiker haqida qisqa ma'lumot" :rows="4" />
+            <UiRichEditor v-model="form.bioUz" />
           </div>
           <div>
             <label class="text-sm font-medium mb-1.5 block">Биография (EN)</label>
-            <UiTextarea v-model="form.bioEn" placeholder="Short speaker bio" :rows="4" />
+            <UiRichEditor v-model="form.bioEn" />
           </div>
         </div>
         <div class="flex justify-end gap-3 pt-2">
