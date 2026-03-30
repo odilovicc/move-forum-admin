@@ -9,6 +9,7 @@ export interface Speaker {
   nameUz?: string;
   nameEn: string;
   photo: string;
+  photoPosition: string;
   position: string;
   positionRu?: string;
   positionUz?: string;
@@ -26,6 +27,7 @@ export interface SpeakerPayload {
   nameUz?: string;
   nameEn: string;
   photo?: string;
+  photoPosition?: string;
   position?: string;
   positionRu: string;
   positionUz?: string;

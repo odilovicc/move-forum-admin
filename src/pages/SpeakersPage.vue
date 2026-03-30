@@ -8,6 +8,7 @@ import UiRichEditor from '@/components/ui/UiRichEditor.vue'
 import UiDialog from '@/components/ui/UiDialog.vue'
 import UiBadge from '@/components/ui/UiBadge.vue'
 import UiFileUpload from '@/components/ui/UiFileUpload.vue'
+import UiPhotoPicker from '@/components/ui/UiPhotoPicker.vue'
 import { useSpeakersStore, type Speaker } from '@/stores/speakers'
 import { Plus, Pencil, Trash2, ChevronUp, ChevronDown } from 'lucide-vue-next'
 
@@ -20,11 +21,13 @@ const deletingId = ref<number | null>(null)
 const photoFile = ref<File | null>(null)
 const NO_PHOTO_PLACEHOLDER = 'https://placehold.co/600x400?text=No+Photo'
 
+
 const form = ref({
   nameRu: '',
   nameUz: '',
   nameEn: '',
   photo: '',
+  photoPosition: 'center',
   positionRu: '',
   positionUz: '',
   positionEn: '',
@@ -41,6 +44,7 @@ function openCreateDialog() {
     nameUz: '',
     nameEn: '',
     photo: '',
+    photoPosition: 'center',
     positionRu: '',
     positionUz: '',
     positionEn: '',
@@ -60,6 +64,7 @@ function openEditDialog(speaker: Speaker) {
     nameUz: speaker.nameUz ?? '',
     nameEn: speaker.nameEn ?? '',
     photo: speaker.photo,
+    photoPosition: speaker.photoPosition ?? 'center',
     positionRu: speaker.positionRu ?? speaker.position ?? '',
     positionUz: speaker.positionUz ?? '',
     positionEn: speaker.positionEn ?? '',
@@ -83,6 +88,7 @@ async function handleSave() {
     nameUz: form.value.nameUz,
     nameEn: form.value.nameEn,
     photo: form.value.photo,
+    photoPosition: form.value.photoPosition,
     positionRu: form.value.positionRu,
     positionUz: form.value.positionUz,
     positionEn: form.value.positionEn,
@@ -120,6 +126,8 @@ onMounted(async () => {
   await store.fetchSpeakers()
 })
 
+const ASSET_BASE = import.meta.env.VITE_ASSET_BASE ?? ''
+
 function imageUrl(path: string) {
   if (!path) {
     return NO_PHOTO_PLACEHOLDER
@@ -129,7 +137,7 @@ function imageUrl(path: string) {
     return path
   }
 
-  return path
+  return `${ASSET_BASE}${path}`
 }
 
 async function moveUp(index: number) {
@@ -263,6 +271,13 @@ function clearCurrentPhoto() {
           <p class="mt-2 text-xs text-muted-foreground">
             Можно загрузить новый файл или оставить текущий путь: <code>{{ form.photo || 'нет фото' }}</code>
           </p>
+        </div>
+        <div>
+          <label class="text-sm font-medium mb-1.5 block">Позиция аватара</label>
+          <UiPhotoPicker
+            :image-url="imageUrl(form.photo)"
+            v-model="form.photoPosition"
+          />
         </div>
         <div>
           <label class="text-sm font-medium mb-1.5 block">Порядок</label>
