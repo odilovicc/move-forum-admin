@@ -263,7 +263,7 @@ function clearCurrentPhoto() {
         <div>
           <label class="text-sm font-medium mb-1.5 block">Фото спикера</label>
           <UiFileUpload
-            :current-url="form.photo"
+            :current-url="imageUrl(form.photo)"
             :placeholder-url="NO_PHOTO_PLACEHOLDER"
             @file-selected="onFileSelected"
             @clear-current="clearCurrentPhoto"
