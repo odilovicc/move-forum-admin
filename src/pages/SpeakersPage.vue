@@ -19,6 +19,7 @@ const deleteDialogOpen = ref(false)
 const editingId = ref<number | null>(null)
 const deletingId = ref<number | null>(null)
 const photoFile = ref<File | null>(null)
+const photoPreviewUrl = ref('')
 const NO_PHOTO_PLACEHOLDER = 'https://placehold.co/600x400?text=No+Photo'
 
 
@@ -54,6 +55,7 @@ function openCreateDialog() {
     order: String(store.speakers.length),
   }
   photoFile.value = null
+  photoPreviewUrl.value = ''
   dialogOpen.value = true
 }
 
@@ -74,6 +76,7 @@ function openEditDialog(speaker: Speaker) {
     order: String(speaker.order),
   }
   photoFile.value = null
+  photoPreviewUrl.value = ''
   dialogOpen.value = true
 }
 
@@ -112,6 +115,10 @@ async function handleSave() {
 
   dialogOpen.value = false
   photoFile.value = null
+  if (photoPreviewUrl.value) {
+    URL.revokeObjectURL(photoPreviewUrl.value)
+    photoPreviewUrl.value = ''
+  }
 }
 
 async function handleDelete() {
@@ -161,11 +168,22 @@ async function moveDown(index: number) {
 
 function onFileSelected(file: File | null) {
   photoFile.value = file
+  if (photoPreviewUrl.value) {
+    URL.revokeObjectURL(photoPreviewUrl.value)
+    photoPreviewUrl.value = ''
+  }
+  if (file) {
+    photoPreviewUrl.value = URL.createObjectURL(file)
+  }
 }
 
 function clearCurrentPhoto() {
   form.value.photo = ''
   photoFile.value = null
+  if (photoPreviewUrl.value) {
+    URL.revokeObjectURL(photoPreviewUrl.value)
+    photoPreviewUrl.value = ''
+  }
 }
 </script>
 
@@ -282,7 +300,7 @@ function clearCurrentPhoto() {
         <div>
           <label class="text-sm font-medium mb-1.5 block">Позиция аватара</label>
           <UiPhotoPicker
-            :image-url="imageUrl(form.photo)"
+            :image-url="photoPreviewUrl || imageUrl(form.photo)"
             v-model="form.photoPosition"
           />
         </div>
