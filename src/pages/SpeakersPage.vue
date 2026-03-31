@@ -9,6 +9,7 @@ import UiDialog from '@/components/ui/UiDialog.vue'
 import UiBadge from '@/components/ui/UiBadge.vue'
 import UiFileUpload from '@/components/ui/UiFileUpload.vue'
 import UiPhotoPicker from '@/components/ui/UiPhotoPicker.vue'
+import UiPhotoEditor from '@/components/ui/UiPhotoEditor.vue'
 import { useSpeakersStore, type Speaker } from '@/stores/speakers'
 import { Plus, Pencil, Trash2, ChevronUp, ChevronDown } from 'lucide-vue-next'
 
@@ -16,8 +17,10 @@ const store = useSpeakersStore()
 
 const dialogOpen = ref(false)
 const deleteDialogOpen = ref(false)
+const photoEditorOpen = ref(false)
 const editingId = ref<number | null>(null)
 const deletingId = ref<number | null>(null)
+const rawFile = ref<File | null>(null)
 const photoFile = ref<File | null>(null)
 const photoPreviewUrl = ref('')
 const NO_PHOTO_PLACEHOLDER = 'https://placehold.co/600x400?text=No+Photo'
@@ -55,6 +58,8 @@ function openCreateDialog() {
     order: String(store.speakers.length),
   }
   photoFile.value = null
+  rawFile.value = null
+  photoEditorOpen.value = false
   photoPreviewUrl.value = ''
   dialogOpen.value = true
 }
@@ -76,6 +81,8 @@ function openEditDialog(speaker: Speaker) {
     order: String(speaker.order),
   }
   photoFile.value = null
+  rawFile.value = null
+  photoEditorOpen.value = false
   photoPreviewUrl.value = ''
   dialogOpen.value = true
 }
@@ -113,8 +120,13 @@ async function handleSave() {
     }
   }
 
+  closeDialog()
+}
+
+function closeDialog() {
   dialogOpen.value = false
   photoFile.value = null
+  rawFile.value = null
   if (photoPreviewUrl.value) {
     URL.revokeObjectURL(photoPreviewUrl.value)
     photoPreviewUrl.value = ''
@@ -167,14 +179,24 @@ async function moveDown(index: number) {
 }
 
 function onFileSelected(file: File | null) {
-  photoFile.value = file
+  if (!file) return
+  rawFile.value = file
+  photoEditorOpen.value = true
+}
+
+function onEditorConfirm(croppedFile: File) {
+  photoEditorOpen.value = false
+  rawFile.value = null
+  photoFile.value = croppedFile
   if (photoPreviewUrl.value) {
     URL.revokeObjectURL(photoPreviewUrl.value)
-    photoPreviewUrl.value = ''
   }
-  if (file) {
-    photoPreviewUrl.value = URL.createObjectURL(file)
-  }
+  photoPreviewUrl.value = URL.createObjectURL(croppedFile)
+}
+
+function onEditorClose() {
+  photoEditorOpen.value = false
+  rawFile.value = null
 }
 
 function clearCurrentPhoto() {
@@ -254,7 +276,7 @@ function clearCurrentPhoto() {
     <UiDialog
       :open="dialogOpen"
       :title="editingId ? 'Редактировать спикера' : 'Новый спикер'"
-      @close="dialogOpen = false"
+      @close="closeDialog"
     >
       <div class="space-y-4">
         <div class="grid grid-cols-3 gap-4">
@@ -288,13 +310,14 @@ function clearCurrentPhoto() {
         <div>
           <label class="text-sm font-medium mb-1.5 block">Фото спикера</label>
           <UiFileUpload
-            :current-url="imageUrl(form.photo)"
+            :key="photoPreviewUrl"
+            :current-url="photoPreviewUrl || imageUrl(form.photo)"
             :placeholder-url="NO_PHOTO_PLACEHOLDER"
             @file-selected="onFileSelected"
             @clear-current="clearCurrentPhoto"
           />
           <p class="mt-2 text-xs text-muted-foreground">
-            Можно загрузить новый файл или оставить текущий путь: <code>{{ form.photo || 'нет фото' }}</code>
+            Файл: <code>{{ photoFile ? photoFile.name : form.photo || 'нет фото' }}</code>
           </p>
         </div>
         <div>
@@ -323,7 +346,7 @@ function clearCurrentPhoto() {
           </div>
         </div>
         <div class="flex justify-end gap-3 pt-2">
-          <UiButton variant="outline" @click="dialogOpen = false">Отмена</UiButton>
+          <UiButton variant="outline" @click="closeDialog">Отмена</UiButton>
           <UiButton @click="handleSave">
             {{ editingId ? 'Сохранить' : 'Добавить' }}
           </UiButton>
@@ -343,5 +366,13 @@ function clearCurrentPhoto() {
         <UiButton variant="destructive" @click="handleDelete">Удалить</UiButton>
       </div>
     </UiDialog>
+
+    <!-- Photo editor -->
+    <UiPhotoEditor
+      :open="photoEditorOpen"
+      :file="rawFile"
+      @confirm="onEditorConfirm"
+      @close="onEditorClose"
+    />
   </div>
 </template>
