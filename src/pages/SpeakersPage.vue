@@ -126,7 +126,10 @@ onMounted(async () => {
   await store.fetchSpeakers()
 })
 
-const ASSET_BASE = import.meta.env.VITE_ASSET_BASE ?? ''
+const API_BASE = import.meta.env.VITE_API_URL ?? '/api'
+const ASSET_BASE =
+  import.meta.env.VITE_ASSET_BASE ??
+  (API_BASE.startsWith('http') ? API_BASE.replace(/\/api\/?$/, '') : window.location.origin)
 
 function imageUrl(path: string) {
   if (!path) {
@@ -137,7 +140,11 @@ function imageUrl(path: string) {
     return path
   }
 
-  return `${ASSET_BASE}${path}`
+  if (path.startsWith('/uploads/')) {
+    return `${ASSET_BASE}${path}`
+  }
+
+  return path
 }
 
 async function moveUp(index: number) {
